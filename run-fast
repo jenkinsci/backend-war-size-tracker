@@ -1,2 +1,2 @@
 rm -rf work/plugins
-mvn -Dmaven.test.skip=true -DskipTests=true clean exec:java
+mvn -Dmaven.test.skip=true -DskipTests=true clean compile exec:java
