@@ -24,12 +24,17 @@
 
 package org.jenkins.ci.backend.war_size_tracker;
 
-import java.util.Collections;
+import java.io.IOException;
 import java.util.Date;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.HeadMethod;
+import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.VelocityContext;
 
 /**
@@ -40,12 +45,25 @@ public final class Report {
     private static final Logger LOG = Logger.getLogger(Report.class.getName());
 
     protected static String generateReport() throws Exception {
-        // TODO: get the actual jenkins sizings
-        return generateReport(new TreeSet<Jenkins>(
-                Collections.singleton(new Jenkins("1.60", 7708672L))));
+        final List<Jenkins> sizes = new LinkedList<Jenkins>();
+
+        for (int version = 60; version <= 500; version++) {
+            try {
+                final Jenkins jenkins = getJenkins("1." + version);
+                if (jenkins != null) {
+                    sizes.add(jenkins);
+                }
+            }
+
+            catch (final IOException e) {
+                LOG.log(Level.WARNING, "Error processing version " + version, e);
+            }
+        }
+
+        return generateReport(sizes);
     }
 
-    protected static String generateReport(final SortedSet<Jenkins> wars)
+    protected static String generateReport(final List<Jenkins> wars)
             throws Exception {
         final VelocityContext context = new VelocityContext();
         context.put("now", new Date());
@@ -53,5 +71,48 @@ public final class Report {
 
         return VelocityUtils.interpolate(
                 VelocityUtils.getVelocityTemplate("report.vm"), context);
+    }
+
+    protected static Jenkins getJenkins(final String version)
+            throws IOException {
+        final HttpClient client = new HttpClient();
+        final HeadMethod head = new HeadMethod(
+                "http://mirrors.jenkins-ci.org/war/" + version + "/"
+                        + getJenkinsWarName(version));
+
+        final int status = client.executeMethod(head);
+
+        if (status < 400) {
+            final Header contentLength = head
+                    .getResponseHeader("Content-Length");
+
+            if (contentLength != null) {
+                return new Jenkins(version, Long.valueOf(contentLength
+                        .getValue()));
+            }
+        }
+
+        return null;
+    }
+
+    protected static String getJenkinsWarName(final String version) {
+        // handle sanity check
+        if (StringUtils.isEmpty(version)) {
+            return "hudson.war";
+        }
+
+        // handle really old versions
+        if (version.length() == 4) {
+            return "hudson.war";
+        }
+
+        // handle jenkins rename: 1.396 and up are jenkins.war
+        final int rc = "1.396".compareTo(version);
+
+        if (rc <= 0) {
+            return "jenkins.war";
+        }
+
+        return "hudson.war";
     }
 }
