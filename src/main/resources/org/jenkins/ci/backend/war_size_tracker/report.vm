@@ -1,0 +1,29 @@
+{warning:title='Automatically Generated Content'}
+This page is automatically generated, any edits you make will be lost!
+{warning}
+
+\\
+
+h2. Why?
+
+This page attempts to draw attention to historical [Jenkins WAR|http://mirrors.jenkins-ci.org/war/latest/] file sizes across releases. Please note that unless there was an actual bug which led to a size increase, which was later fixed, it is expected that this size will be always increasing. This is normal, and not in and of itself cause for alarm; it is a primary result of Jenkins' unrelenting commitment to backwards compatibility.
+
+\\
+
+h2. Charts
+
+To help visualize how disparate the required core versions are, here is a graph which depicts the total number of plugins at each required core version. The chart ranges on the x-axis from 1.300 to 1.500.
+
+\\
+
+{chart:type=line|title=Jenkins WAR Sizes|xLabel=Version|yLabel=Size (bytes)|dataOrientation=vertical|width=1024|dataDisplay=after}
+||Version||Size (bytes)||
+#foreach( ${war} in ${wars} )|| $!{war.version} | $!{war.size} |
+#end
+{chart}
+
+\\
+
+This page was automatically generated on $!{now} by [https://github.com/jenkinsci/backend-war-size-tracker].
+
+\\
