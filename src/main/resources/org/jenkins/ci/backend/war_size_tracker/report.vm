@@ -12,10 +12,6 @@ This page attempts to draw attention to historical [Jenkins WAR|http://mirrors.j
 
 h2. Charts
 
-To help visualize how disparate the required core versions are, here is a graph which depicts the total number of plugins at each required core version. The chart ranges on the x-axis from 1.300 to 1.500.
-
-\\
-
 {chart:type=line|title=Jenkins WAR Sizes|xLabel=Version|yLabel=Size (bytes)|dataOrientation=vertical|width=1024|dataDisplay=after}
 ||Version||Size (bytes)||
 #foreach( ${war} in ${wars} )|| $!{war.version} | $!{war.size} |
