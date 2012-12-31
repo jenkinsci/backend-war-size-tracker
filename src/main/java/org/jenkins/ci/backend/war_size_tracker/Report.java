@@ -47,7 +47,7 @@ public final class Report {
     protected static String generateReport() throws Exception {
         final List<Jenkins> sizes = new LinkedList<Jenkins>();
 
-        for (int version = 60; version <= 500; version++) {
+        for (int version = 60; version <= 600; version++) {
             try {
                 final Jenkins jenkins = getJenkins("1." + version);
                 if (jenkins != null) {
