@@ -33,33 +33,20 @@ import org.apache.commons.lang.StringUtils;
  * @author <a href="mailto:jieryn@gmail.com">Jesse Farinacci</a>
  * @since 1.0
  */
-public final class Main implements Runnable {
+public final class Main {
     private static final Logger LOG = Logger.getLogger(Main.class.getName());
 
-    public static void main(final String[] args) {
-        new Main().run();
-    }
+    public static void main(final String[] args) throws Exception {
+        WikiUpdater.validateConfiguration();
 
-    public void run() {
-        try {
-            WikiUpdater.validateConfiguration();
+        final String report = Report.generateReport();
 
-            final String report = Report.generateReport();
-
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine(report);
-            }
-
-            if (StringUtils.isNotEmpty(report)) {
-                WikiUpdater.updateWikiPage("Jenkins WAR Size Tracker", report);
-            }
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine(report);
         }
 
-        catch (final Exception e) {
-            LOG.warning(e.getMessage());
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.log(Level.INFO, e.getMessage(), e);
-            }
+        if (StringUtils.isNotEmpty(report)) {
+            WikiUpdater.updateWikiPage("Jenkins WAR Size Tracker", report);
         }
     }
 }
